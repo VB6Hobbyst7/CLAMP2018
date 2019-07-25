@@ -98,6 +98,10 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="UIAutomationClient" />
+    <Reference Include="UtilesAlberto, Version=2019.0.0.5, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\_MODULOS-CLASES\WINDOWS\UtilesAlberto\bin\UtilesAlberto.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -112,9 +116,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\WINDOWS\clsAPI.vb">
-      <Link>ClasesAuxiliares\clsAPI.vb</Link>
-    </Compile>
+    <Compile Include="ClasesAuxiliares\clsAPI.vb" />
     <Compile Include="ClasesAuxiliares\clsCOcus.vb" />
     <Compile Include="ClasesAuxiliares\clsColorChange.vb" />
     <Compile Include="ClasesAuxiliares\clsGetPoint2D.vb" />
@@ -337,12 +339,6 @@
     <PackageReference Include="System.Xml.XDocument">
       <Version>4.3.0</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\WINDOWS\UtilesAlberto\UtilesAlberto.vbproj">
-      <Project>{7e7b7fd9-7145-4607-b2b8-bb292871b260}</Project>
-      <Name>UtilesAlberto</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
