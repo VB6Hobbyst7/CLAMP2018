@@ -1,0 +1,241 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <MyType>Windows</MyType>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <ProjectGuid>{E3133B87-5830-4ECA-A611-BE8CABD0D3EF}</ProjectGuid>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <PublishUrl>http://localhost/InventorAddIn/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\</OutputPath>
+    <DocumentationFile>.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <NoWarn>42016,42017,42018,42019,42032,42353,42354,42355</NoWarn>
+    <DebugType>full</DebugType>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\</OutputPath>
+    <DocumentationFile>.xml</DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <NoWarn>42016,42017,42018,42019,42032,42353,42354,42355</NoWarn>
+    <DebugType>none</DebugType>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionExplicit>On</OptionExplicit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionCompare>Binary</OptionCompare>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionStrict>Off</OptionStrict>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>CLAMP2018</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autodesk.Inventor.Interop, Version=24.0.0.0, Culture=neutral, PublicKeyToken=d84147f8b4276564, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>..\..\..\..\Program Files\Autodesk\Inventor 2018\Bin\Public Assemblies\Autodesk.Inventor.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="ClosedXML">
+      <HintPath>..\..\..\_MODULOS-CLASES\INVENTOR\Inventor2acad\bin\ClosedXML.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.5.5631.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\_MODULOS-CLASES\INVENTOR\Inventor2acad\bin\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelNumberFormat">
+      <HintPath>..\..\..\_MODULOS-CLASES\INVENTOR\Inventor2acad\bin\ExcelNumberFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="FastMember">
+      <HintPath>..\..\..\_MODULOS-CLASES\INVENTOR\Inventor2acad\bin\FastMember.dll</HintPath>
+    </Reference>
+    <Reference Include="Inventor2acad">
+      <HintPath>..\..\..\_MODULOS-CLASES\INVENTOR\Inventor2acad\bin\Inventor2acad.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.ReaderWriter">
+      <HintPath>..\..\..\_MODULOS-CLASES\INVENTOR\Inventor2acad\bin\System.Xml.ReaderWriter.dll</HintPath>
+    </Reference>
+    <Reference Include="UtilesAlberto">
+      <HintPath>..\..\..\_MODULOS-CLASES\WINDOWS\UtilesAlberto\bin\UtilesAlberto.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Diagnostics" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.vb" />
+    <Compile Include="modVar.vb" />
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="StandardAddInServer.vb" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CLAMP2018.ini" />
+    <None Include="CLAMP2018.X.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CLAMP2018.addin" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="My Project\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="Readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IMAGENES\CLAM.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="stdole">
+      <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IMAGENES\Soporte_Icono.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IMAGENES\PapeleraLlena.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IMAGENES\Ensamblaje_ICO.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IMAGENES\Configurar_ICO.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IMAGENES\Arriba.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IMAGENES\Abajo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IMAGENES\Folder.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2aCAD_2019.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2aCAD_2019.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2aCAD_2019_ICO.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IMAGENES\CLAM_ICO.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IMAGENES\CLAMPS.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IMAGENES\CLAMPS_ICO.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IMAGENES\Housing.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IMAGENES\Housing_ICO.ico" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>rmdir /S/Q "%25AppData%25\Autodesk\ApplicationPlugins\$(TargetName)\"
+mkdir "%25AppData%25\Autodesk\ApplicationPlugins\$(TargetName)\"</PreBuildEvent>
+    <PostBuildEvent>call "%25VS140COMNTOOLS%25vsvars32"
+			mt.exe -manifest "$(ProjectDir)CLAMP2018.X.manifest" -outputresource:"$(TargetPath)";#2
+			XCopy "$(TargetPath)" "%25AppData%25\Autodesk\ApplicationPlugins\$(TargetName)\" /Y /R
+
+XCopy "$(ProjectDir)$(TargetName).addin" "%25AppData%25\Autodesk\ApplicationPlugins\$(TargetName)\" /Y /R
+XCopy "$(TargetDir)*.dll" "%25AppData%25\Autodesk\ApplicationPlugins\$(TargetName)\" /Y /R
+XCopy "$(TargetDir)*.ini" "%25AppData%25\Autodesk\ApplicationPlugins\$(TargetName)\" /Y /R
+XCopy "$(TargetDir)CLAMP\*.*" "%25AppData%25\Autodesk\ApplicationPlugins\$(TargetName)\CLAMP\" /Y /E
+	</PostBuildEvent>
+  </PropertyGroup>
+</Project>

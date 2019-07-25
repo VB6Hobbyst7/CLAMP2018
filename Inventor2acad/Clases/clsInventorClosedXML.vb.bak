@@ -1,0 +1,798 @@
+﻿Option Compare Text
+
+Imports Inventor
+Imports System.Runtime.InteropServices
+Imports System.Windows.Forms
+Imports Microsoft.Win32
+Imports System.Linq
+Imports System.IO
+Imports Microsoft.VisualBasic
+Imports Microsoft.WindowsAPICodePack.Shell
+Imports ClosedXML
+Imports ClosedXML.Excel
+Partial Public Class Inventor2acad
+    Public Function Excel_DameParametrosEnColumnas(fiExcel As String, cellIni As String, Optional nHoja As Object = Nothing) As Dictionary(Of String, String())
+        If IO.File.Exists(fiExcel) = False Then
+            Return Nothing
+            Exit Function
+        End If
+        'key=nombre de parámetro
+        Dim resultado As New Dictionary(Of String, String())
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        End If
+        '
+        Dim xlWc As IXLCell = xlWs.Cell(cellIni)
+        Dim row As IXLRow = xlWc.WorksheetRow
+        Dim nrow As Integer = row.RowNumber
+        Dim col As IXLColumn = xlWc.WorksheetColumn
+        Dim ncol As Integer = col.ColumnNumber
+        '
+        For x As Integer = ncol To 10000
+            Dim param As String = xlWs.Cell(nrow, x).Value
+            If param = "" Then Exit For
+            '
+            Dim datos(2) As String
+            ' 0=valor o ecuación
+            ' 1=unidad de medida
+            ' 2=comentario.
+            datos(0) = xlWs.Cell(nrow + 1, x).Value
+            datos(1) = xlWs.Cell(nrow + 2, x).Value
+            datos(2) = xlWs.Cell(nrow + 3, x).Value
+            Try
+                resultado.Add(param, datos)
+            Catch ex As Exception
+                ' Ya existe la clave. Sería un error de parámetro repetido. Inusual.
+                Continue For
+            End Try
+        Next
+        '
+        xlWb = Nothing
+        xlWs = Nothing
+        xlWc = Nothing
+        row = Nothing
+        col = Nothing
+        '
+        LimpiaMemoria()
+        Return resultado
+    End Function
+    ' Siempre empieza en la primera columna de la fila indicada
+    Public Function Excel_DameParametrosEnColumnas(fiExcel As String, nRow As Integer, Optional nHoja As Object = Nothing) As Dictionary(Of String, String())
+        If IO.File.Exists(fiExcel) = False Then
+            Return Nothing
+            Exit Function
+        End If
+        'key=nombre de parámetro
+        Dim resultado As New Dictionary(Of String, String())
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        'Dim xlWc As IXLCell = xlWs.Cell(nRow, 1)
+        'Dim row As IXLRow = xlWc.WorksheetRow
+        'Dim col As IXLColumn = xlWc.WorksheetColumn
+        'Dim ncol As Integer = col.ColumnNumber
+        '
+        'Dim contadorCol As Integer = ncol
+        For x As Integer = 1 To 10000
+            Dim param As String = xlWs.Cell(nRow, x).Value
+            If param = "" Then Exit For
+            '
+            Dim datos(2) As String
+            ' 0=valor o ecuación
+            ' 1=unidad de medida
+            ' 2=comentario.
+            datos(0) = xlWs.Cell(nRow + 1, x).Value
+            datos(1) = xlWs.Cell(nRow + 2, x).Value
+            datos(2) = xlWs.Cell(nRow + 3, x).Value
+            Try
+                resultado.Add(param, datos)
+            Catch ex As Exception
+                ' Ya existe la clave. Sería un error de parámetro repetido. Inusual.
+                Continue For
+            End Try
+        Next
+        '
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+        Return resultado
+    End Function
+    '
+    Public Function Excel_DameMultiParametrosEnColumnas(fiExcel As String, nRow As Integer, Optional nHoja As Object = Nothing) As Dictionary(Of String, String())
+        If IO.File.Exists(fiExcel) = False Then
+            Return Nothing
+            Exit Function
+        End If
+        'key=nombre de parámetro
+        Dim resultado As New Dictionary(Of String, String())
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        '
+        'Dim contadorCol As Integer = ncol
+        For x As Integer = 1 To 10000
+            Dim param As String = xlWs.Cell(nRow, x).Value
+            If param = "" Then Exit For
+            '
+            Dim datos(-1) As String      ' Array con los Multivalues
+            For y As Integer = 1 To 1000
+                Dim multi As String = xlWs.Cell(nRow + y, x).Value
+                ' Si no tiene valor, pasar a la siguiente columna
+                If multi = "" Then Exit For
+                ' Tiene valor, añadirlo al array
+                ReDim Preserve datos(UBound(datos) + 1)
+                datos(UBound(datos)) = multi
+            Next
+            Try
+                resultado.Add(param, datos)
+            Catch ex As Exception
+                ' Ya existe la clave. Sería un error de parámetro repetido. Inusual.
+                Continue For
+            End Try
+        Next
+        '
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+        Return resultado
+    End Function
+    '
+    Public Function Excel_DameValorEnRango(fiExcel As String, queRango As String, Optional nHoja As Object = Nothing) As Dictionary(Of String, Object)
+        If IO.File.Exists(fiExcel) = False Then
+            Return Nothing
+            Exit Function
+        End If
+        'key=nombre de parámetro
+        Dim resultado As New Dictionary(Of String, Object)
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        Dim xlRange As IXLRange = Nothing
+        xlRange = xlWs.Range(queRango)
+        For Each xlCell As IXLCell In xlRange.Cells
+            resultado.Add(xlCell.Address.ToString(XLReferenceStyle.R1C1), xlCell.Value)
+        Next
+        xlRange = Nothing
+        '
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+        Return resultado
+    End Function
+    '
+    Public Function Excel_DameValorEnRango(fiExcel As String, queCellIni As String, queCellFin As String, Optional nHoja As Object = Nothing) As Dictionary(Of String, Object)
+        If IO.File.Exists(fiExcel) = False Then
+            Return Nothing
+            Exit Function
+        End If
+        'key=nombre de parámetro
+        Dim resultado As New Dictionary(Of String, Object)
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        Dim xlRange As IXLRange = Nothing
+        xlRange = xlWs.Range(queCellIni, queCellFin)
+        For Each xlCell As IXLCell In xlRange.Cells
+            resultado.Add(xlCell.Address.ToString(XLReferenceStyle.R1C1), xlCell.Value)
+        Next
+        xlRange = Nothing
+        '
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+        Return resultado
+    End Function
+
+    Public Function Excel_DameValorEnRango(fiExcel As String, RowIni As String, ColIni As String, RowFin As String, ColFin As String, Optional nHoja As Object = Nothing) As Dictionary(Of String, Object)
+        If IO.File.Exists(fiExcel) = False Then
+            Return Nothing
+            Exit Function
+        End If
+        'key=nombre de parámetro
+        Dim resultado As New Dictionary(Of String, Object)
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        Dim xlRange As IXLRange = Nothing
+        xlRange = xlWs.Range(RowIni, ColIni, RowFin, ColFin)
+        For Each xlCell As IXLCell In xlRange.Cells
+            resultado.Add(xlCell.Address.ToString(XLReferenceStyle.R1C1), xlCell.Value)
+        Next
+        xlRange = Nothing
+        '
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+        Return resultado
+    End Function
+    '
+    Public Sub Excel_EscribeCell(fiExcel As String, queCell As String, queValor As Object, Optional nHoja As Object = Nothing)
+        If IO.File.Exists(fiExcel) = False Then
+            MsgBox("No existe el fichero " & fiExcel)
+            Exit Sub
+        End If
+        'key=nombre de parámetro
+        Dim resultado As New Dictionary(Of String, Object)
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        Dim xlCell As IXLCell = Nothing
+        xlCell = xlWs.Cell(queCell)
+        xlCell.Value = queValor
+        xlCell = Nothing
+        '
+        xlWb.CalculationOnSave = True
+        xlWb.Save()
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+    End Sub
+    '
+    Public Sub Excel_EscribeCell(fiExcel As String, queCellRow As Integer, queCellCol As Integer, queValor As Object, Optional nHoja As Object = Nothing)
+        If IO.File.Exists(fiExcel) = False Then
+            MsgBox("No existe el fichero " & fiExcel)
+            Exit Sub
+        End If
+        'key=nombre de parámetro
+        Dim resultado As New Dictionary(Of String, Object)
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        Dim xlCell As IXLCell = Nothing
+        xlCell = xlWs.Cell(queCellRow, queCellCol)
+        xlCell.Value = queValor
+        xlCell = Nothing
+        '
+        xlWb.CalculationOnSave = True
+        xlWb.Save()
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+    End Sub
+    '
+    Public Function Excel_DameValorEnCell(fiExcel As String, queCell As String, Optional nHoja As Object = Nothing) As Object
+        If IO.File.Exists(fiExcel) = False Then
+            Return Nothing
+            Exit Function
+        End If
+        'key=nombre de parámetro
+        Dim resultado As Object = Nothing
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        Dim xlCell As IXLCell = Nothing
+        xlCell = xlWs.Cell(queCell)
+        resultado = xlCell.Value
+        xlCell = Nothing
+        '
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+        Return resultado
+    End Function
+    '
+    Public Function Excel_DameValorEnCell(fiExcel As String, queRow As Integer, queCol As Integer, Optional nHoja As Object = Nothing) As Object
+        If IO.File.Exists(fiExcel) = False Then
+            Return Nothing
+            Exit Function
+        End If
+        'key=nombre de parámetro
+        Dim resultado As Object = Nothing
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        Dim xlCell As IXLCell = Nothing
+        xlCell = xlWs.Cell(queRow, queCol)
+        resultado = xlCell.Value
+        xlCell = Nothing
+        '
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+        Return resultado
+    End Function
+    '
+
+    Public Function Excel_DameValorEnCell(fiExcel As String, queCells As String(), Optional nHoja As Object = Nothing) As Dictionary(Of String, Object)
+        If IO.File.Exists(fiExcel) = False Then
+            Return Nothing
+            Exit Function
+        End If
+        'key=nombre de parámetro
+        Dim resultado As New Dictionary(Of String, Object)
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        For Each queCell As String In queCells
+            Dim xlCell As IXLCell = Nothing
+            xlCell = xlWs.Cell(queCell)
+            resultado.Add(queCell, xlCell.Value)
+            xlCell = Nothing
+        Next
+        '
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+        Return resultado
+    End Function
+    Public Sub Excel_EscribeCellsColeccion(fiExcel As String, queArrCells As String(), queArrValores As Object(), Optional nHoja As Object = Nothing)
+        If IO.File.Exists(fiExcel) = False Then
+            MsgBox("No existe el fichero " & fiExcel)
+            Exit Sub
+        End If
+        'key=nombre de parámetro
+        Dim resultado As New Dictionary(Of String, Object)
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        For x As Integer = LBound(queArrCells) To UBound(queArrCells)
+            Dim xlCell As IXLCell = Nothing
+            xlCell = xlWs.Cell(queArrCells(x))
+            Try
+                xlCell.Value = queArrValores(x)
+            Catch ex As Exception
+                ' Si no existia valor en el array de valores, escribimos ""
+                xlCell.Value = ""
+            End Try
+            xlCell = Nothing
+        Next
+        '
+        xlWb.CalculationOnSave = True
+        xlWb.Save()
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+    End Sub
+    Public Sub Excel_EscribeCellsColeccion(fiExcel As String, queHashtable As Hashtable, Optional nHoja As Object = Nothing)
+        If IO.File.Exists(fiExcel) = False Then
+            MsgBox("No existe el fichero " & fiExcel)
+            Exit Sub
+        End If
+        'key=nombre de parámetro
+        Dim resultado As New Dictionary(Of String, Object)
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        For Each queCell As String In queHashtable.Keys
+            Dim xlCell As IXLCell = Nothing
+            xlCell = xlWs.Cell(queCell)
+            xlCell.Value = queHashtable(queCell)
+            xlCell = Nothing
+        Next
+        '
+        xlWb.CalculationOnSave = True
+        xlWb.Save()
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+    End Sub
+    Public Function Excel_EscribeParametroEnColumna(fiExcel As String, nRow As Integer, quePar As String, queVal As Object, Optional nHoja As Object = Nothing) As Boolean
+        If IO.File.Exists(fiExcel) = False Then
+            Return False
+            Exit Function
+        End If
+        'key=nombre de parámetro
+        Dim resultado As Boolean = False
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        '
+        'Dim contadorCol As Integer = ncol
+        For x As Integer = 1 To 10000
+            Dim param As String = xlWs.Cell(nRow, x).Value
+            If param = "" Then
+                Exit For
+            ElseIf param = quePar Then
+                resultado = True
+                xlWs.Cell(nRow + 1, x).Value = queVal
+                Exit For
+            End If
+        Next
+        '
+        xlWb.CalculationOnSave = True
+        If resultado = True Then
+            xlWb.Save()
+        End If
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+        Return resultado
+    End Function
+    '
+    '
+    Public Sub Excel_BuscaEnFilasYEscribeCell(fiExcel As String, colDatos As Dictionary(Of String, Object), nHoja As Object,
+                                        Optional rowIni As Integer = 3, Optional colIni As Integer = 1, Optional colWrite As Integer = 1)
+        If IO.File.Exists(fiExcel) = False Then
+            MsgBox("File not exist: " & fiExcel)
+            Exit Sub
+        End If
+        If nHoja Is Nothing Then
+            MsgBox("Sheet not exist...")
+            Exit Sub
+        End If
+        '
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o error
+        Try
+            xlWs = xlWb.Worksheet(nHoja)
+        Catch ex As Exception
+            MsgBox("Sheet not exist...")
+            Exit Sub
+        End Try
+        ' Rango con la primera columna entera (A)
+        Dim xlRange As IXLRange = xlWs.Range(rowIni, colIni, xlWs.LastRowUsed.RowNumber, colIni)
+        For Each parametro As String In colDatos.Keys
+            For Each xlCell As IXLCell In xlRange.Cells
+                If xlCell.Value.ToString.Trim = parametro Then
+                    If colWrite > 0 Then
+                        ' Escribir X columnas a la Derecha.
+                        xlCell.CellRight(colWrite).Value = colDatos(parametro)
+                    ElseIf colWrite = 0 Then
+                        ' Escribir en la celda localizada.
+                        xlCell.Value = colDatos(parametro)
+                    End If
+                    Exit For
+                ElseIf xlCell.Value.ToString.Trim = "" Then
+                    Exit For
+                End If
+            Next
+        Next
+        '
+        xlWb.CalculationOnSave = True
+        xlWb.Save()
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+    End Sub
+    '
+    Public Sub Excel_BuscaEnFilasYRellenaDictionaryValues(fiExcel As String, arrparametros As List(Of String), ByRef colDatos As Dictionary(Of String, Object), nHoja As Object,
+                                        Optional rowIni As Integer = 3, Optional colIni As Integer = 1, Optional colRead As Integer = 2)
+        If IO.File.Exists(fiExcel) = False Then
+            MsgBox("File not exist: " & fiExcel)
+            Exit Sub
+        End If
+        If nHoja Is Nothing Then
+            MsgBox("Sheet not exist...")
+            Exit Sub
+        End If
+        '
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o error
+        Try
+            xlWs = xlWb.Worksheet(nHoja)
+        Catch ex As Exception
+            MsgBox("Sheet not exist...")
+            Exit Sub
+        End Try
+        ' Rango con la primera columna entera (A)
+        Dim xlRange As IXLRange = xlWs.Range(rowIni, colIni, xlWs.LastRowUsed.RowNumber, colIni)
+        For Each parametro As String In arrparametros
+            For Each xlCell As IXLCell In xlRange.Cells
+                If xlCell.Value.ToString.Trim = parametro Then
+                    colDatos(parametro) = xlCell.CellRight(colRead).Value
+                    Exit For
+                ElseIf xlCell.Value.ToString.Trim = "" Then
+                    Exit For
+                End If
+            Next
+        Next
+        '
+        'xlWb.CalculationOnSave = True
+        'xlWb.Save()    ' No guardar, solo estamos leyendo.
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        LimpiaMemoria()
+    End Sub
+    Public Function BuscaNPieza(ByRef fiExcel As String,
+                               datoBuscado As String,
+                               Optional colDato As Integer = 1,
+                               Optional filIni As Integer = 2,
+                               Optional colIni As Integer = 1,
+                               Optional colFin As Integer = 56,
+                               Optional nHoja As Object = Nothing) As Hashtable
+        '' Si no existe el fichero Excel, salimos devolviendo Nothing
+        If IO.File.Exists(fiExcel) = False Then
+            Return Nothing
+            Exit Function
+        End If
+        '
+        Dim resultado As New Hashtable
+
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            ' Referenciamos hoja indicada (Nombre o Número) o la primera si da error
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            ' Referenciamos la primera hoja del libro de trabajo
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        ' Recorremos las filas, columna A para buscar el valor
+        Dim valor As Object = Nothing
+        For Each xlR As IXLRow In xlWs.Rows(filIni, xlWs.LastRowUsed.RowNumber)
+            If xlR.RowNumber < filIni Then Continue For
+            '
+            valor = xlR.Cell(colDato).Value
+            If valor Is Nothing Then Exit For
+            If valor.ToString = "" Then Exit For
+            'Debug.Print(valor)
+            If valor.ToString = datoBuscado Then
+                For x As Integer = 1 To colFin  ' Each oRan1 As Excel.Range In oRan.Columns
+                    ' La columna 56 /  BD  (CALIBRADO) será la última 
+                    resultado.Add(x, xlR.Cell(x).Value)
+                Next
+                Exit For
+            End If
+        Next
+        '
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        ' Efectuamos una recolección de elementos no utilizados,
+        ' ya que no se cierra la instancia de Excel existente
+        ' en el Administrador de Tareas.
+        '
+        LimpiaMemoria()
+        '
+        Return resultado
+    End Function
+    '
+
+    Public Function CalibradoBusca(fiExcel As String, arrOrdenMenor() As Double, colCols As Hashtable, Optional nHoja As Object = Nothing) As Object
+        If IO.File.Exists(fiExcel) = False Then
+            Return Nothing
+            Exit Function
+        End If
+        '
+        Dim resultado As Object = Nothing
+
+        Dim xlWb As XLWorkbook = New XLWorkbook(fiExcel)
+        Dim xlWs As IXLWorksheet = Nothing
+        ' Coger la hoja indicada (Nombre o número) o la 1 en caso de que no exista
+        If nHoja IsNot Nothing Then
+            ' Referenciamos hoja indicada (Nombre o Número) o la primera si da error
+            Try
+                xlWs = xlWb.Worksheet(nHoja)
+            Catch ex As Exception
+                xlWs = xlWb.Worksheet(1)
+            End Try
+        Else
+            ' Referenciamos la primera hoja del libro de trabajo
+            xlWs = xlWb.Worksheet(1)
+        End If
+        '
+        '' VIEJO: Iteraremos con los valores 2-1, 1-0 y 2-0 para saber si está el calibrado.
+        '' Iteraremos con los valores 1-0, 2-0 y 2-1 para saber si está el calibrado.(d0xd1xd2) (d1xd0 luego d2xd0 luego d2xd1)
+        '' ** También cada uno al revés (d0xd1 luego d0xd2 luego d1xd2)
+        Dim intFila As Integer = 0
+        Dim intColu As Integer = 1
+        Dim intSobrante As Integer = 2
+repetir:
+        '' No procesamos la coordenada menor.
+        Dim valor As Object = Nothing
+        '' Recorremos las filas, columna A (1) para buscar el valor.
+        '' ***** Redondeamos el valor double para que no tenga decimales. Al superior (ToEven)
+        Dim datoFila As Integer = Math.Ceiling(arrOrdenMenor(intFila))
+        Dim datoColumna As Integer = Math.Ceiling(arrOrdenMenor(intColu))
+        Dim datoSobrante As Integer = Math.Ceiling(arrOrdenMenor(intSobrante))
+        For Each xlR As IXLRow In xlWs.Rows    ' oRan As Excel.Range In ws.Rows 'For nFi As Integer = 2 To ws.Rows.Count
+            '' No procesamos la fila 1, son los encabezados.
+            If xlR.RowNumber = 1 Then Continue For
+            'Dim oRan As Range = ws.Rows(nFi)
+            valor = xlR.Cell(1).Value
+            '' Si no es un número, pasamos a la siguiente fila.
+            If valor Is Nothing Then Exit For
+            If IsNumeric(valor) = False Then Exit For
+            'Debug.Print(valor)
+            If CInt(valor) = datoFila Then
+                If colCols.ContainsKey(datoColumna) = True Then
+                    Try
+                        resultado = xlR.Cell(CInt(colCols(datoColumna))).Value
+                    Catch ex As Exception
+                        resultado = Nothing
+                    End Try
+                Else
+                    resultado = Nothing
+                End If
+                Exit For
+            ElseIf CInt(valor) > datoFila Then
+                '' Si el valor el mayor que el que buscamos. Ya no estará y salimos del bucle.
+                Exit For
+            End If
+            '' Si ya hemos encontrado el valor. Salimos del bucle de filas.
+            If resultado IsNot Nothing Then Exit For
+        Next
+
+        '' Iteraremos con los valores 0-1. 2-0 y 2-1 (y los contrarios) para saber si está el calibrado.(d0xd1xd2)
+        '' (Primero, por defecto d0xd1 luego d1xd0 luego d2xd0 luego d0xd2 luego d2xd1 luego d1xd2)
+        If intFila = 0 And intColu = 1 And resultado Is Nothing Then
+            intFila = 1 : intColu = 0 : intSobrante = 2
+            GoTo repetir
+        ElseIf intFila = 1 And intColu = 0 And resultado Is Nothing Then
+            intFila = 2 : intColu = 0 : intSobrante = 1
+            GoTo repetir
+        ElseIf intFila = 2 And intColu = 0 And resultado Is Nothing Then
+            intFila = 0 : intColu = 2 : intSobrante = 1
+            GoTo repetir
+        ElseIf intFila = 0 And intColu = 2 And resultado Is Nothing Then
+            intFila = 2 : intColu = 1 : intSobrante = 0
+            GoTo repetir
+        ElseIf intFila = 2 And intColu = 1 And resultado Is Nothing Then
+            intFila = 1 : intColu = 2 : intSobrante = 0
+            GoTo repetir
+        End If
+        '
+        xlWb = Nothing
+        xlWs = Nothing
+        '
+        ' Efectuamos una recolección de elementos no utilizados,
+        ' ya que no se cierra la instancia de Excel existente
+        ' en el Administrador de Tareas.
+        '
+        LimpiaMemoria()
+        '
+        If resultado <> "" Then resultado = resultado & " (" & datoSobrante & ")"
+        Return resultado
+    End Function
+
+End Class

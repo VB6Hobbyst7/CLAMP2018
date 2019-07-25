@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+
+  <assemblyIdentity name="CLAMP2018" version="1.0.0.0"></assemblyIdentity>
+
+  <clrClass clsid="{aae1c1d7-01fc-4822-8835-fd043e2daff5}" progid="CLAMP2018.StandardAddInServer" threadingModel="Both" name="CLAMP2018.CLAMP2018.StandardAddInServer" runtimeVersion=""></clrClass>
+
+  <file name="CLAMP2018.dll" hashalg="SHA1"></file>
+
+</assembly>
